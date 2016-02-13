@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.logger import Logger
 from kivy.properties import (
     BooleanProperty,
     NumericProperty,
@@ -12,7 +13,7 @@ class AutoPilot(App):
     # Telemetry
     altitude = NumericProperty(0)
     surface_altitude = NumericProperty(0)
-    speed = NumericProperty(1)
+    speed = NumericProperty(0)
     heading = NumericProperty(90)
     pitch = NumericProperty(0)
 
@@ -28,7 +29,19 @@ class AutoPilot(App):
     brakes = BooleanProperty(False)
 
     def build(self):
-        ksp = krpc.connect(name='Airplane autopilot')
+        Clock.schedule_once(self.krpc_init)
+
+    def krpc_init(self, *args):
+        try:
+            ksp = krpc.connect(name='Kautopivy')
+        except krpc.error.NetworkError as e:
+            if e.message.startswith('[Errno 111]'):
+                Logger.error(
+                    'kRPC: Could not connect to localhost:50000. '
+                    'Is kRPC server started?'
+                )
+                return
+            raise
 
         vessel = ksp.space_center.active_vessel
         flight = vessel.flight()
