@@ -1,0 +1,42 @@
+GridLayout:
+    cols: 2
+
+    Label:
+        text: 'Altitude:'
+    Label:
+        text: str(app.altitude)
+
+    Label:
+        text: 'Set heading:'
+    FloatLayout:
+        TextInput:
+            text: '90'
+            on_text: app.target_heading = float(args[1]) if args[1].isdigit() else app.target_heading
+            on_text_validate: app.autopilot_engaged = True
+            size_hint_y: None
+            height: self.minimum_height
+            pos_hint: {'center': (.5, .5)}
+            background_color: (1, 1, 1, 1) if self.text .isdigit() else (1, 0, 0, 1)
+            multiline: False
+            write_tab: False
+
+    Label:
+        text: 'Set pitch:'
+    FloatLayout:
+        TextInput:
+            text: '0'
+            on_text: app.target_pitch = float(args[1]) if args[1].isdigit() else app.target_pitch
+            on_text_validate: app.autopilot_engaged = True
+            size_hint_y: None
+            height: self.minimum_height
+            pos_hint: {'center': (.5, .5)}
+            background_color: (1, 1, 1, 1) if self.text .isdigit() else (1, 0, 0, 1)
+            multiline: False
+            write_tab: False
+
+    Label:
+        text: 'Autopilot:'
+    ToggleButton:
+        text: '{}ngaged'.format('E' if self.state == 'down' else 'Dise')
+        state: 'down' if app.autopilot_engaged else 'normal'
+        on_state: app.autopilot_engaged = True if self.state == 'down' else False
