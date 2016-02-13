@@ -16,6 +16,9 @@ class AutoPilot(App):
     speed = NumericProperty(0)
     heading = NumericProperty(90)
     pitch = NumericProperty(0)
+    roll = NumericProperty(0)
+    latitude = NumericProperty(0)
+    longitude = NumericProperty(0)
 
     # Autopilot
     target_heading = NumericProperty(90)
@@ -76,6 +79,21 @@ class AutoPilot(App):
             flight,
             'pitch'
         )
+        self.roll_stream = ksp.add_stream(
+            getattr,
+            flight,
+            'roll'
+        )
+        self.latitude_stream = ksp.add_stream(
+            getattr,
+            flight,
+            'latitude'
+        )
+        self.longitude_stream = ksp.add_stream(
+            getattr,
+            flight,
+            'longitude'
+        )
         Clock.schedule_interval(self.update_streams, 0)
         self.target_pitch = int(flight.pitch)
         self.target_heading = int(flight.heading)
@@ -90,6 +108,22 @@ class AutoPilot(App):
         self.speed = self.speed_stream()
         self.heading = self.heading_stream()
         self.pitch = self.pitch_stream()
+        self.roll = self.roll_stream()
+        self.latitude = self.latitude_stream()
+        self.longitude = self.longitude_stream()
+
+    def latitude_dms(self):
+        return self.to_dms(self.latitude, ('N', 'S'))
+
+    def longitude_dms(self):
+        return self.to_dms(self.longitude, ('E', 'W'))
+
+    def to_dms(self, value, directions):
+        mult = 3600 if value > 0 else -3600
+        direction = directions[1 if value < 0 else 0]
+        mnt, sec = divmod(value * mult, 60)
+        deg, mnt = divmod(mnt, 60)
+        return int(deg), int(mnt), int(sec), direction
 
     def on_autopilot_engaged(self, app, engaged):
         autopilot = self.autopilot
