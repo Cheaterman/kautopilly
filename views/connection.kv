@@ -1,0 +1,71 @@
+#:import Clock kivy.clock.Clock
+
+<Connection>:
+    name: 'connection'
+
+    on_pre_enter: connect.text = 'Connect'
+
+    Label:
+        text: 'kRPC server connection settings'
+        font_size: self.height * .25
+        pos: grid.x, grid.top - self.height * .35
+        size_hint: None, None
+        size: grid.width, grid.height * .35
+
+    GridLayout:
+        id: grid
+        size_hint: .5, .5
+        pos_hint: {'center': (.5, .5)}
+        cols: 2
+
+        Label:
+            text: 'Server address:'
+        FloatLayout:
+            TextInput:
+                text: root.address
+                on_text: root.address = args[1]
+                on_text_validate: connect.trigger_action()
+                size_hint: None, None
+                size: self.height * 3.25, self.minimum_height
+                pos_hint: {'center': (.5, .5)}
+                multiline: False
+                write_tab: False
+        
+        Label:
+            text: 'RPC port:'
+        FloatLayout:
+            TextInput:
+                text: str(root.rpc_port)
+                on_text: root.rpc_port = int(args[1]) if args[1].isdigit() else root.rpc_port
+                on_text_validate: connect.trigger_action()
+                size_hint: None, None
+                size: self.height * 1.75, self.minimum_height
+                pos_hint: {'center': (.5, .5)}
+                multiline: False
+                write_tab: False
+
+
+        Label:
+            text: 'Stream port:'
+        FloatLayout:
+            TextInput:
+                text: str(root.stream_port)
+                on_text: root.stream_port = int(args[1]) if args[1].isdigit() else root.stream_port
+                on_text_validate: connect.trigger_action()
+                size_hint: None, None
+                size: self.height * 1.75, self.minimum_height
+                pos_hint: {'center': (.5, .5)}
+                multiline: False
+                write_tab: False
+
+    Button:
+        id: connect
+        text: 'Connect'
+        x: grid.x
+        top: grid.y
+        size_hint: None, None
+        size: grid.width, grid.height * .25
+        font_size: self.height * .5
+        on_release:
+            self.text = 'Connecting...'
+            Clock.schedule_once(lambda dt: root.dispatch('on_connect'))

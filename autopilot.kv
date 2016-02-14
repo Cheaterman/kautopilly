@@ -1,94 +1,14 @@
-BoxLayout:
-    BoxLayout:
-        size_hint_x: .1
-        orientation: 'vertical'
+#:import Connection views.Connection
+#:import Atmospheric views.Atmospheric
 
-        Label:
-            text: 'Throttle:'
-            size_hint_y: .1
-        Slider:
-            orientation: 'vertical'
-            max: 1
-            value: app.throttle
-            on_value: app.throttle = self.value
+ScreenManager:
+    Connection:
+        id: connection
+        on_connect: root.current = 'atmospheric'
 
-    BoxLayout:
-        orientation: 'vertical'
-        GridLayout:
-            cols: 2
+    Atmospheric:
+        address: connection.address
+        rpc_port: connection.rpc_port
+        stream_port: connection.stream_port
 
-            Label:
-                text: 'Altitude: {:.2f}m'.format(app.altitude)
-
-            Label:
-                text: 'Surface altitude: {:.2f}m'.format(app.surface_altitude)
-
-            Label:
-                text: 'Speed: {:.2f}m/s'.format(app.speed)
-
-            Label:
-                text: 'Heading: {:.2f}°'.format(app.heading)
-
-            Label:
-                text: 'Pitch: {:.2f}°'.format(app.pitch)
-
-            Label:
-                text: 'Roll: {:.2f}°'.format(app.roll)
-
-            Label:
-                text: str(app.latitude) and 'Latitude: {}°{:02d}"{:02d}\' {}'.format(*app.latitude_dms())
-
-            Label:
-                text: str(app.longitude) and 'Longitude: {}°{:02d}"{:02d}\' {}'.format(*app.longitude_dms())
-
-            Label:
-                text: 'Set heading:'
-            FloatLayout:
-                TextInput:
-                    text: str(app.target_heading)
-                    on_text: app.target_heading = int(args[1]) if args[1] else app.target_heading
-                    on_text_validate: app.autopilot_engaged = True
-                    size_hint: None, None
-                    size: self.height * 1.25, self.minimum_height
-                    pos_hint: {'center': (.5, .5)}
-                    multiline: False
-                    write_tab: False
-
-            Label:
-                text: 'Set pitch:'
-            FloatLayout:
-                TextInput:
-                    text: str(app.target_pitch)
-                    on_text: app.target_pitch = int(args[1]) if args[1] else app.target_pitch
-                    on_text_validate: app.autopilot_engaged = True
-                    size_hint: None, None
-                    size: self.height * 1.25, self.minimum_height
-                    pos_hint: {'center': (.5, .5)}
-                    multiline: False
-                    write_tab: False
-
-            ToggleButton:
-                text: 'Autopilot {}engaged'.format('' if self.state == 'down' else 'dis')
-                state: 'down' if app.autopilot_engaged else 'normal'
-                on_state: app.autopilot_engaged = True if self.state == 'down' else False
-
-            ToggleButton:
-                text: 'Lights {}'.format('on' if self.state == 'down' else 'off')
-                state: 'down' if app.lights else 'normal'
-                on_state: app.lights = True if self.state == 'down' else False
-
-            ToggleButton:
-                id: gear
-                text: 'Gear {}'.format('down' if self.state == 'down' else 'up')
-                state: 'down' if app.gear else 'normal'
-                on_state: app.gear = True if self.state == 'down' else False
-
-            ToggleButton:
-                text: 'Brakes {}'.format('active' if self.state == 'down' else 'released')
-                state: 'down' if app.brakes else 'normal'
-                on_state: app.brakes = True if self.state == 'down' else False
-
-        Button:
-            text: 'Stage'
-            on_release: app.control.activate_next_stage()
-            size_hint_y: 1/8.
+        on_connection_failure: root.current = 'connection'

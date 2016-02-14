@@ -1,0 +1,97 @@
+<Atmospheric>:
+    name: 'atmospheric'
+
+    BoxLayout:
+        BoxLayout:
+            size_hint_x: .1
+            orientation: 'vertical'
+
+            Label:
+                text: 'Throttle:'
+                size_hint_y: .1
+            Slider:
+                orientation: 'vertical'
+                max: 1
+                value: root.throttle
+                on_value: root.throttle = self.value
+
+        BoxLayout:
+            orientation: 'vertical'
+            GridLayout:
+                cols: 2
+
+                Label:
+                    text: 'Altitude: {:.2f}m'.format(root.altitude)
+
+                Label:
+                    text: 'Surface altitude: {:.2f}m'.format(root.surface_altitude)
+
+                Label:
+                    text: 'Speed: {:.2f}m/s'.format(root.speed)
+
+                Label:
+                    text: 'Heading: {:.2f}°'.format(root.heading)
+
+                Label:
+                    text: 'Pitch: {:.2f}°'.format(root.pitch)
+
+                Label:
+                    text: 'Roll: {:.2f}°'.format(root.roll)
+
+                Label:
+                    text: str(root.latitude) and 'Latitude: {}°{:02d}"{:02d}\' {}'.format(*root.latitude_dms())
+
+                Label:
+                    text: str(root.longitude) and 'Longitude: {}°{:02d}"{:02d}\' {}'.format(*root.longitude_dms())
+
+                Label:
+                    text: 'Set heading:'
+                FloatLayout:
+                    TextInput:
+                        text: str(root.target_heading)
+                        on_text: root.target_heading = int(args[1]) if args[1] else root.target_heading
+                        on_text_validate: root.autopilot_engaged = True
+                        size_hint: None, None
+                        size: self.height * 1.25, self.minimum_height
+                        pos_hint: {'center': (.5, .5)}
+                        multiline: False
+                        write_tab: False
+
+                Label:
+                    text: 'Set pitch:'
+                FloatLayout:
+                    TextInput:
+                        text: str(root.target_pitch)
+                        on_text: root.target_pitch = int(args[1]) if args[1] else root.target_pitch
+                        on_text_validate: root.autopilot_engaged = True
+                        size_hint: None, None
+                        size: self.height * 1.25, self.minimum_height
+                        pos_hint: {'center': (.5, .5)}
+                        multiline: False
+                        write_tab: False
+
+                ToggleButton:
+                    text: 'Autopilot {}engaged'.format('' if self.state == 'down' else 'dis')
+                    state: 'down' if root.autopilot_engaged else 'normal'
+                    on_state: root.autopilot_engaged = True if self.state == 'down' else False
+
+                ToggleButton:
+                    text: 'Lights {}'.format('on' if self.state == 'down' else 'off')
+                    state: 'down' if root.lights else 'normal'
+                    on_state: root.lights = True if self.state == 'down' else False
+
+                ToggleButton:
+                    id: gear
+                    text: 'Gear {}'.format('down' if self.state == 'down' else 'up')
+                    state: 'down' if root.gear else 'normal'
+                    on_state: root.gear = True if self.state == 'down' else False
+
+                ToggleButton:
+                    text: 'Brakes {}'.format('active' if self.state == 'down' else 'released')
+                    state: 'down' if root.brakes else 'normal'
+                    on_state: root.brakes = True if self.state == 'down' else False
+
+            Button:
+                text: 'Stage'
+                on_release: root.control.activate_next_stage()
+                size_hint_y: 1/8.
