@@ -1,7 +1,7 @@
 from kivy.app import App
 
 
-class AutoPilot(App):
+class KautoPilly(App):
     pass
 
-AutoPilot().run()
+KautoPilly().run()
