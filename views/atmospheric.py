@@ -50,7 +50,7 @@ class Atmospheric(Screen):
     def on_pre_enter(self):
         try:
             ksp = krpc.connect(
-                name='Kautopilly',
+                name='KautoPilly',
                 address=self.address,
                 rpc_port=self.rpc_port,
                 stream_port=self.stream_port,
