@@ -6,7 +6,7 @@
     on_pre_enter: connect.text = 'Connect'
 
     Label:
-        text: 'kRPC server connection settings'
+        text: 'Connection settings'
         font_size: self.height * .25
         pos: grid.x, grid.top - self.height * .35
         size_hint: None, None
@@ -14,7 +14,7 @@
 
     GridLayout:
         id: grid
-        size_hint: .5, .5
+        size_hint: .75, .5
         pos_hint: {'center': (.5, .5)}
         cols: 2
 
@@ -26,7 +26,7 @@
                 on_text: root.address = args[1]
                 on_text_validate: connect.trigger_action()
                 size_hint: None, None
-                size: self.height * 3.25, self.minimum_height
+                size: self.height * 3.35, self.minimum_height
                 pos_hint: {'center': (.5, .5)}
                 multiline: False
                 write_tab: False
@@ -39,7 +39,7 @@
                 on_text: root.rpc_port = int(args[1]) if args[1].isdigit() else root.rpc_port
                 on_text_validate: connect.trigger_action()
                 size_hint: None, None
-                size: self.height * 1.75, self.minimum_height
+                size: self.height * 2, self.minimum_height
                 pos_hint: {'center': (.5, .5)}
                 multiline: False
                 write_tab: False
@@ -53,7 +53,7 @@
                 on_text: root.stream_port = int(args[1]) if args[1].isdigit() else root.stream_port
                 on_text_validate: connect.trigger_action()
                 size_hint: None, None
-                size: self.height * 1.75, self.minimum_height
+                size: self.height * 2, self.minimum_height
                 pos_hint: {'center': (.5, .5)}
                 multiline: False
                 write_tab: False

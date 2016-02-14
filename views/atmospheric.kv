@@ -3,7 +3,7 @@
 
     BoxLayout:
         BoxLayout:
-            size_hint_x: .1
+            size_hint_x: .2
             orientation: 'vertical'
 
             Label:
@@ -20,29 +20,29 @@
             GridLayout:
                 cols: 2
 
-                Label:
-                    text: 'Altitude: {:.2f}m'.format(root.altitude)
+                TelemetryLabel:
+                    text: 'Altitude:\n{:.2f}m'.format(root.altitude)
 
-                Label:
-                    text: 'Surface altitude: {:.2f}m'.format(root.surface_altitude)
+                TelemetryLabel:
+                    text: 'Surface altitude:\n{:.2f}m'.format(root.surface_altitude)
 
-                Label:
-                    text: 'Speed: {:.2f}m/s'.format(root.speed)
+                TelemetryLabel:
+                    text: 'Speed:\n{:.2f}m/s'.format(root.speed)
 
-                Label:
-                    text: 'Heading: {:.2f}°'.format(root.heading)
+                TelemetryLabel:
+                    text: 'Heading:\n{:.2f}°'.format(root.heading)
 
-                Label:
-                    text: 'Pitch: {:.2f}°'.format(root.pitch)
+                TelemetryLabel:
+                    text: 'Pitch:\n{:.2f}°'.format(root.pitch)
 
-                Label:
-                    text: 'Roll: {:.2f}°'.format(root.roll)
+                TelemetryLabel:
+                    text: 'Roll:\n{:.2f}°'.format(root.roll)
 
-                Label:
-                    text: str(root.latitude) and 'Latitude: {}°{:02d}"{:02d}\' {}'.format(*root.latitude_dms())
+                TelemetryLabel:
+                    text: str(root.latitude) and 'Latitude:\n{}°{:02d}"{:02d}\' {}'.format(*root.latitude_dms())
 
-                Label:
-                    text: str(root.longitude) and 'Longitude: {}°{:02d}"{:02d}\' {}'.format(*root.longitude_dms())
+                TelemetryLabel:
+                    text: str(root.longitude) and 'Longitude:\n{}°{:02d}"{:02d}\' {}'.format(*root.longitude_dms())
 
                 Label:
                     text: 'Set heading:'
@@ -95,3 +95,7 @@
                 text: 'Stage'
                 on_release: root.control.activate_next_stage()
                 size_hint_y: 1/8.
+
+<TelemetryLabel@Label>:
+    text_size: self.size
+    halign: 'center'

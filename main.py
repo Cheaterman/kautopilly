@@ -2,6 +2,7 @@ from kivy.app import App
 
 
 class KautoPilly(App):
-    pass
+    def on_pause(self):
+        return True
 
 KautoPilly().run()
