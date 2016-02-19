@@ -72,7 +72,7 @@ class Atmospheric(Screen):
                         color=(1, 0, 0, 1),
                         font_size=20
                     ),
-                    size_hint=(.5, .5)
+                    size_hint=(.9, .5)
                 )
                 popup.open()
                 self.dispatch('on_connection_failure')

@@ -1,3 +1,5 @@
+#:import AutoPilotInput widgets.AutoPilotInput
+
 <Atmospheric>:
     name: 'atmospheric'
 
@@ -44,31 +46,24 @@
                 TelemetryLabel:
                     text: str(root.longitude) and 'Longitude:\n{}°{:02d}"{:02d}\' {}'.format(*root.longitude_dms())
 
-                Label:
-                    text: 'Set heading:'
-                FloatLayout:
-                    TextInput:
-                        text: str(root.target_heading)
-                        on_text: root.target_heading = int(args[1]) if args[1] else root.target_heading
-                        on_text_validate: root.autopilot_engaged = True
-                        size_hint: None, None
-                        size: self.height * 1.25, self.minimum_height
-                        pos_hint: {'center': (.5, .5)}
-                        multiline: False
-                        write_tab: False
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Set heading:'
 
-                Label:
-                    text: 'Set pitch:'
-                FloatLayout:
-                    TextInput:
-                        text: str(root.target_pitch)
-                        on_text: root.target_pitch = int(args[1]) if args[1] else root.target_pitch
-                        on_text_validate: root.autopilot_engaged = True
-                        size_hint: None, None
-                        size: self.height * 1.25, self.minimum_height
-                        pos_hint: {'center': (.5, .5)}
-                        multiline: False
-                        write_tab: False
+                    FloatLayout:
+                        AutoPilotInput:
+                            target: 'target_heading'
+                            root: root
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Set pitch:'
+                    FloatLayout:
+                        AutoPilotInput:
+                            target: 'target_pitch'
+                            root: root
 
                 ToggleButton:
                     text: 'Autopilot {}engaged'.format('' if self.state == 'down' else 'dis')
