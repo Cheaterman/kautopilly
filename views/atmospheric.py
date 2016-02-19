@@ -128,6 +128,11 @@ class Atmospheric(Screen):
             flight,
             'longitude'
         )
+        self.throttle_stream = ksp.add_stream(
+            getattr,
+            self.control,
+            'throttle'
+        )
         Clock.schedule_interval(self.update_streams, 0)
         self.target_pitch = int(flight.pitch)
         self.target_heading = int(flight.heading)
@@ -145,6 +150,7 @@ class Atmospheric(Screen):
         self.roll = self.roll_stream()
         self.latitude = self.latitude_stream()
         self.longitude = self.longitude_stream()
+        self.throttle = self.throttle_stream()
 
     def latitude_dms(self):
         return self.to_dms(self.latitude, ('N', 'S'))
