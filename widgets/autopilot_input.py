@@ -27,7 +27,13 @@ class AutoPilotInput(TextInput):
 
     def on_text(self, instance, value):
         if value:
-            setattr(self.root, self.target, int(value))
+            try:
+                value = float(value)
+            except ValueError:
+                return
+            if abs(value - int(value)) < .0001:
+                value = int(value)
+            setattr(self.root, self.target, value)
 
     def on_text_validate(self):
         if self.root:

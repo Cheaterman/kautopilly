@@ -4,6 +4,7 @@ from kivy.logger import Logger
 from kivy.properties import (
     BooleanProperty,
     NumericProperty,
+    ObjectProperty,
     StringProperty,
 )
 from kivy.uix.screenmanager import Screen
@@ -18,6 +19,7 @@ class Atmospheric(Screen):
     address = StringProperty('127.0.0.1')
     rpc_port = NumericProperty(50000)
     stream_port = NumericProperty(50001)
+    ksp = ObjectProperty()
 
     # Telemetry
     altitude = NumericProperty(0)
@@ -32,10 +34,12 @@ class Atmospheric(Screen):
     # Autopilot
     target_heading = NumericProperty(90)
     target_pitch = NumericProperty(0)
+    target_roll = NumericProperty(0)
     autopilot_engaged = BooleanProperty(False)
 
     # Controls
     throttle = NumericProperty(.5)
+    throttling = BooleanProperty(False)
     lights = BooleanProperty(False)
     gear = BooleanProperty(True)
     brakes = BooleanProperty(False)
@@ -49,7 +53,7 @@ class Atmospheric(Screen):
 
     def on_pre_enter(self):
         try:
-            ksp = krpc.connect(
+            self.ksp = ksp = krpc.connect(
                 name='KautoPilly',
                 address=self.address,
                 rpc_port=self.rpc_port,
@@ -85,7 +89,6 @@ class Atmospheric(Screen):
         speed_flight = vessel.flight(vessel.orbit.body.reference_frame)
         self.control = vessel.control
         self.autopilot = vessel.auto_pilot
-        self.autopilot.target_roll = 0
         self.autopilot.rotation_speed_multiplier = 10
         self.autopilot.max_rotation_speed = 10
         self.altitude_stream = ksp.add_stream(
@@ -134,8 +137,9 @@ class Atmospheric(Screen):
             'throttle'
         )
         Clock.schedule_interval(self.update_streams, 0)
-        self.target_pitch = int(flight.pitch)
         self.target_heading = int(flight.heading)
+        self.target_pitch = int(flight.pitch)
+        self.target_roll = int(flight.roll)
         self.throttle = self.control.throttle
         self.lights = self.control.lights
         self.gear = self.control.gear
@@ -150,7 +154,15 @@ class Atmospheric(Screen):
         self.roll = self.roll_stream()
         self.latitude = self.latitude_stream()
         self.longitude = self.longitude_stream()
-        self.throttle = self.throttle_stream()
+        throttle = self.throttle_stream()
+        if self.throttling and throttle == self.throttle:
+            self.throttling = False
+        if not self.throttling:
+            self.throttle = throttle
+
+    def on_pre_leave(self):
+        if self.ksp:
+            self.ksp.close()
 
     def latitude_dms(self):
         return self.to_dms(self.latitude, ('N', 'S'))
@@ -179,7 +191,11 @@ class Atmospheric(Screen):
     def on_target_pitch(self, screen, pitch):
         self.autopilot.target_pitch_and_heading(pitch, self.target_heading)
 
+    def on_target_roll(self, screen, roll):
+        self.autopilot.target_roll = roll
+
     def on_throttle(self, screen, throttle):
+        self.throttling = True
         self.control.throttle = throttle
 
     def on_lights(self, screen, lights):

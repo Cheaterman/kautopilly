@@ -46,24 +46,20 @@
                 TelemetryLabel:
                     text: str(root.longitude) and 'Longitude:\n{}°{:02d}"{:02d}\' {}'.format(*root.longitude_dms())
 
-                BoxLayout:
-                    orientation: 'vertical'
-                    Label:
-                        text: 'Set heading:'
+                AutoPilotLayout:
+                    text: 'Set heading:'
+                    target: 'target_heading'
+                    root: root
 
-                    FloatLayout:
-                        AutoPilotInput:
-                            target: 'target_heading'
-                            root: root
+                AutoPilotLayout:
+                    text: 'Set pitch:'
+                    target: 'target_pitch'
+                    root: root
 
-                BoxLayout:
-                    orientation: 'vertical'
-                    Label:
-                        text: 'Set pitch:'
-                    FloatLayout:
-                        AutoPilotInput:
-                            target: 'target_pitch'
-                            root: root
+                AutoPilotLayout:
+                    text: 'Set roll:'
+                    target: 'target_roll'
+                    root: root
 
                 ToggleButton:
                     text: 'Autopilot {}engaged'.format('' if self.state == 'down' else 'dis')
@@ -71,26 +67,39 @@
                     on_state: root.autopilot_engaged = True if self.state == 'down' else False
 
                 ToggleButton:
+                    text: 'Gear {}'.format('down' if self.state == 'down' else 'up')
+                    state: 'down' if root.gear else 'normal'
+                    on_state: root.gear = True if self.state == 'down' else False
+
+                ToggleButton:
                     text: 'Lights {}'.format('on' if self.state == 'down' else 'off')
                     state: 'down' if root.lights else 'normal'
                     on_state: root.lights = True if self.state == 'down' else False
 
-                ToggleButton:
-                    id: gear
-                    text: 'Gear {}'.format('down' if self.state == 'down' else 'up')
-                    state: 'down' if root.gear else 'normal'
-                    on_state: root.gear = True if self.state == 'down' else False
+                Button:
+                    text: 'Stage'
+                    on_release: root.control.activate_next_stage()
 
                 ToggleButton:
                     text: 'Brakes {}'.format('active' if self.state == 'down' else 'released')
                     state: 'down' if root.brakes else 'normal'
                     on_state: root.brakes = True if self.state == 'down' else False
 
-            Button:
-                text: 'Stage'
-                on_release: root.control.activate_next_stage()
-                size_hint_y: 1/8.
-
 <TelemetryLabel@Label>:
     text_size: self.size
     halign: 'center'
+
+<AutoPilotLayout@BoxLayout>:
+    orientation: 'vertical'
+
+    text: ''
+    target: ''
+    root: None
+
+    Label:
+        text: root.text
+
+    FloatLayout:
+        AutoPilotInput:
+            target: root.target
+            root: root.root
