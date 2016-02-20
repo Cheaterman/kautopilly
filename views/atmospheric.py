@@ -11,6 +11,8 @@ from kivy.uix.screenmanager import Screen
 class Atmospheric(Screen):
     # Connection
     ksp = ObjectProperty(None)
+    vessel = ObjectProperty(None)
+    flight = ObjectProperty(None)
 
     # Telemetry
     altitude = NumericProperty(0)
@@ -35,15 +37,30 @@ class Atmospheric(Screen):
     gear = BooleanProperty(True)
     brakes = BooleanProperty(False)
 
-    def on_pre_enter(self):
+    def on_ksp(self, screen, ksp):
+        self.vessel_stream = stream = ksp.add_stream(
+            getattr,
+            ksp.space_center,
+            'active_vessel'
+        )
+        self.vessel = stream()
+
+    def on_vessel(self, screen, vessel):
+        self.flight_stream = stream = self.ksp.add_stream(
+            vessel.flight
+        )
+        self.flight = stream()
+
+    def on_flight(self, screen, flight):
+        self.setup_streams()
+
+    def setup_streams(self):
         ksp = self.ksp
-        vessel = ksp.space_center.active_vessel
-        flight = vessel.flight()
+        vessel = self.vessel
+        flight = self.flight
         speed_flight = vessel.flight(vessel.orbit.body.reference_frame)
         self.control = vessel.control
         self.autopilot = vessel.auto_pilot
-        self.autopilot.rotation_speed_multiplier = 10
-        self.autopilot.max_rotation_speed = 10
         self.altitude_stream = ksp.add_stream(
             getattr,
             flight,
@@ -90,15 +107,19 @@ class Atmospheric(Screen):
             'throttle'
         )
         Clock.schedule_interval(self.update_streams, 0)
+        self.autopilot.rotation_speed_multiplier = 10
+        self.autopilot.max_rotation_speed = 10
+        self.autopilot_engaged = False
         self.target_heading = int(flight.heading)
         self.target_pitch = int(flight.pitch)
         self.target_roll = int(flight.roll)
-        self.throttle = self.control.throttle
         self.lights = self.control.lights
         self.gear = self.control.gear
         self.brakes = self.control.brakes
 
     def update_streams(self, dt):
+        self.vessel = self.vessel_stream()
+        self.flight = self.flight_stream()
         self.altitude = self.altitude_stream()
         self.surface_altitude = self.surface_altitude_stream()
         self.speed = self.speed_stream()
