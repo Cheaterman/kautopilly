@@ -1,25 +1,16 @@
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.logger import Logger
 from kivy.properties import (
     BooleanProperty,
     NumericProperty,
     ObjectProperty,
-    StringProperty,
 )
 from kivy.uix.screenmanager import Screen
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
-
-import krpc
 
 
 class Atmospheric(Screen):
-    # Network info
-    address = StringProperty('127.0.0.1')
-    rpc_port = NumericProperty(50000)
-    stream_port = NumericProperty(50001)
-    ksp = ObjectProperty()
+    # Connection
+    ksp = ObjectProperty(None)
 
     # Telemetry
     altitude = NumericProperty(0)
@@ -44,46 +35,8 @@ class Atmospheric(Screen):
     gear = BooleanProperty(True)
     brakes = BooleanProperty(False)
 
-    def __init__(self, **kwargs):
-        super(Atmospheric, self).__init__(**kwargs)
-        self.register_event_type('on_connection_failure')
-
-    def on_connection_failure(self):
-        pass
-
     def on_pre_enter(self):
-        try:
-            self.ksp = ksp = krpc.connect(
-                name='KautoPilly',
-                address=self.address,
-                rpc_port=self.rpc_port,
-                stream_port=self.stream_port,
-            )
-        except krpc.error.NetworkError as e:
-            if e.message.startswith('[Errno 111]'):
-                popup = Popup(
-                    title='kRPC server connection error',
-                    content=Label(
-                        text=(
-                            'Could not connect to address:\n\n'
-                            '{}:{} (stream port: {})\n\n'.format(
-                                self.address,
-                                self.rpc_port,
-                                self.stream_port
-                            ) +
-                            'Is kRPC server started?'
-                        ),
-                        color=(1, 0, 0, 1),
-                        font_size=20
-                    ),
-                    size_hint=(.9, .5)
-                )
-                popup.open()
-                self.dispatch('on_connection_failure')
-
-                return
-            raise
-
+        ksp = self.ksp
         vessel = ksp.space_center.active_vessel
         flight = vessel.flight()
         speed_flight = vessel.flight(vessel.orbit.body.reference_frame)
@@ -159,10 +112,6 @@ class Atmospheric(Screen):
             self.throttling = False
         if not self.throttling:
             self.throttle = throttle
-
-    def on_pre_leave(self):
-        if self.ksp:
-            self.ksp.close()
 
     def latitude_dms(self):
         return self.to_dms(self.latitude, ('N', 'S'))

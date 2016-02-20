@@ -4,12 +4,12 @@
 ScreenManager:
     Connection:
         id: connection
-        on_connect: root.current = 'atmospheric'
+        on_connect:
+            app.connect(
+            self.address,
+            self.rpc_port,
+            self.stream_port,
+            )
 
     Atmospheric:
         id: atmospheric
-        address: connection.address
-        rpc_port: connection.rpc_port
-        stream_port: connection.stream_port
-
-        on_connection_failure: root.current = 'connection'
